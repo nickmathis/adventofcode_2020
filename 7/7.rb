@@ -621,13 +621,6 @@ class BagRules
   def initialize(data)
     @bags = parse(data)
     @usable_bags = []
-
-    @bag_contents_list = {}
-    @bags.each do |bag, bag_list|
-      @bag_contents_list[bag] = bag_list.inject(0) { |sum, val| sum += val.last }
-    end
-
-    @bag_counter = 0
   end
 
   def p1(target_bag_list)
@@ -648,27 +641,23 @@ class BagRules
   end
 
   def p2(bag_count_list, depth = 1)
-    puts "with #{bag_count_list}"
+    count = 0
     bag_count_list.each do |target_bag|
-      puts @bags[target_bag].inspect
       if @bags[target_bag].empty?
-        puts "returning 1 @ #{depth}"
-        return 1
+        return 0
       end
-
+      
       @bags[target_bag].each do |next_bag|
-        puts "#{next_bag.inspect} d: #{depth}"
-        puts "#{@bag_counter} d: #{depth}"
-        @bag_counter = next_bag.last + next_bag.last * p2([next_bag.first], depth + 1)
-        puts "#{@bag_counter} d: #{depth}"
+        rc = p2([next_bag.first], depth + 1)
+        count += next_bag.last + next_bag.last * rc
       end
     end
 
-    @bag_counter
+    count
   end
 
   def parse(data)
-    bags = {}
+    bags = {} 
     data.split("\n").each do |line|
       matches = line.match(/^(.*) bags contain (.*)\.$/)
       container_bag = matches[1]
@@ -685,4 +674,4 @@ class BagRules
   end
 end
 
-puts BagRules.new(test_data_2).p2(['shiny gold'])
+puts BagRules.new(data).p2(['shiny gold'])
